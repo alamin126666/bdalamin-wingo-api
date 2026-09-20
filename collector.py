@@ -15,6 +15,14 @@ from firebase_client import FirebaseClient
 
 logger = logging.getLogger(__name__)
 BANGLADESH_TZ = ZoneInfo("Asia/Dhaka")
+SOURCE_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 "
+        "Chrome/120.0 Mobile Safari/537.36"
+    ),
+    "Accept": "application/json,text/plain,*/*",
+    "Referer": "https://draw.ar-lottery01.com/",
+}
 
 
 class Collector:
@@ -63,7 +71,9 @@ class Collector:
     async def _run(self) -> None:
         timeout = aiohttp.ClientTimeout(total=self.settings.request_timeout)
         try:
-            async with aiohttp.ClientSession(timeout=timeout) as session:
+            async with aiohttp.ClientSession(
+                timeout=timeout, headers=SOURCE_HEADERS
+            ) as session:
                 while True:
                     await self.collect_once(session)
                     # Align to Bangladesh wall-clock minute boundaries
