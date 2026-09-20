@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import signal
+from functools import wraps
 from typing import Any
 
 from aiogram import Bot, Dispatcher, Router
@@ -29,10 +30,13 @@ _firebase: FirebaseClient
 
 
 def owner_only(handler):
+    @wraps(handler)
     async def wrapped(message: Message, *args: Any, **kwargs: Any):
         if not message.from_user or message.from_user.id != _settings.owner_id:
             return
-        return await handler(message, *args, **kwargs)
+        # aiogram may inject dispatcher/bot/update context as keyword
+        # arguments. These command handlers only accept the Message object.
+        return await handler(message)
 
     return wrapped
 
